@@ -9,6 +9,11 @@ var PORT = process.env.PORT || 3000;
 
 var app = express();
 
+var exphbs = require("express-handlebars");
+
+app.engine("handlebars", exphbs({ defaultLayout: "main"}));
+app.set("view engine", "handlebars");
+
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static("public"));
 
@@ -17,30 +22,11 @@ mongoose.connect("mongodb://localhost/mongoscraper", {
     useMongoClient: true
 });
 
-app.get("/scrape", function(req, res) {
-    db.scrapedData.remove({});
-    request("http://www.foxnews.com/us.html", function(error, response, html) {
-        var $ = cheerio.load(html);
+var articleRoutes = require("./controllers/articleController.js")(app);
+var noteRoutes = require("./controllers/noteController.js")(app);
 
-        $(".article").each(function(i, element) {
-            var title = $(element).find("h2").find("a").text();
-            var link = $(element).find("h2").attr("a");
-            var blurb = $(element).find("p").find("a").text();
-            if(title && img && blurb) {
-                db.scrapedData.insert({
-                    title: title,
-                    img: img,
-                    blurb: blurb
-                }, function(err, inserted) {
-                    if(err) {
-                        console.log(err);
-                    }
-                    else {
-                        console.log(inserted);
-                    }
-                });
-            }
-        });
-    });
-    res.send("Scrape Complete");
-})
+app.use(articleRoutes);
+
+app.listen(port, function(){
+    console.log("Listening on PORT " + port);
+});
