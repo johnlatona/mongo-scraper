@@ -2,38 +2,64 @@ var express = require("express");
 var router = express.Router();
 var request = require("request");
 var mongoose = require("mongoose");
+var db = require("../models");
+var exphbs = require("express-handlebars");
+var cheerio = require("cheerio");
+
+// If deployed, use the deployed database. Otherwise use the local mongoHeadlines database
+var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/mongoscraper";
+
+// Set mongoose to leverage built in JavaScript ES6 Promises
+// Connect to the Mongo DB
+mongoose.Promise = Promise;
+mongoose.connect(MONGODB_URI, {
+  useMongoClient: true
+});
 
 router.get("/scrape", function(req, res) {
-    db.Article.remove({});
     request("http://www.foxnews.com/us.html", function(error, response, html) {
         var $ = cheerio.load(html);
 
         $(".article").each(function(i, element) {
             var title = $(element).find("h2").find("a").text();
-            var link = $(element).find("h2").attr("a");
+            var link = $(element).find(".info").children(".info-header").children("h2").children("a").attr("href");
             var blurb = $(element).find("p").find("a").text();
-            if(title && img && blurb) {
-                db.Article.create({
-                    title: title,
-                    link: `http://www.foxnews.com${link}`,
-                    blurb: blurb
-                })
-                .then(function(dbArticles) {
-                    res.render("index", dbArticle);
-                })
-                .catch(function(err) {
-                    return res.json(err);
-                });
+            var contentNum = $(element).children("meta").attr("content");
+            var dbLink;
+            if(link === undefined) {
+                return;
             }
+            else if(link.indexOf("/") === 0) {
+                dbLink = `http://www.foxnews.com${link}`;
+            }
+            else {
+                dbLink = link;
+            }
+            db.Article.create({
+                title: title,
+                link: dbLink,
+                blurb: blurb,
+                contentNum: contentNum
+            })
+            .then(function(dbArticles) {
+                var hbsScrape = {
+                    articles: dbArticles
+                }
+            })
+            .catch(function(err) {
+                res.send(err);
+            });
         });
     });
-    res.send("Scrape Complete");
 });
 
-router.get("/articles", function(req, res) {
-    db.Article.find({})
+router.get("/", function(req, res) {
+    db.Article.find({}).populate("note")
     .then(function(dbArticle) {
-        res.json(dbArticle);
+        var hbsObject = {
+            articles: dbArticle
+        }
+        res.render("index", hbsObject);
     })
     .catch(function(err) {
         res.json(err);
@@ -44,7 +70,10 @@ router.get("/articles/:id", function(req, res) {
     db.Article.findOne({ _id: req.params.id })
     .populate("note")
     .then(function(dbArticle) {
-        res.json(dbArticle);
+        var hbsWithNote = {
+            articles:dbArticle
+        }
+        res.render("index", hbsWithNote);
     })
     .catch(function(err) {
         res.json(err);
@@ -54,12 +83,17 @@ router.get("/articles/:id", function(req, res) {
 router.post("/articles/:id", function(req, res) {
     db.Note.create(req.body)
     .then(function(dbNote) {
-        return db.Article.findOneAndUpdate({ _id: req.params.id }, { note: dbNote._id }, {new: true});
+        var linkNum = req.params.id;
+        console.log(linkNum);
+        console.log("dbNote._id: " + dbNote._id);
+        return db.Article.findOneAndUpdate({ _id: linkNum }, { $push: {note: dbNote._id} }, {new: true});
     })
     .then(function(dbArticle) {
-        res.json(dbArticle);
+        console.log(dbArticle);
     })
     .catch(function(err) {
         res.json(err);
     });
 });
+
+module.exports = router;

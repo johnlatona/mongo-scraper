@@ -1,10 +1,8 @@
 var express = require("express");
 var bodyParser = require("body-parser");
-var mongoose = require("mongoose");
 var cheerio = require("cheerio");
 var request = require("request");
 
-var db = require("./models");
 var PORT = process.env.PORT || 3000;
 
 var app = express();
@@ -17,16 +15,10 @@ app.set("view engine", "handlebars");
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static("public"));
 
-mongoose.Promise = Promise;
-mongoose.connect("mongodb://localhost/mongoscraper", {
-    useMongoClient: true
-});
+var routes = require("./controllers/articleController.js");
 
-var articleRoutes = require("./controllers/articleController.js")(app);
-var noteRoutes = require("./controllers/noteController.js")(app);
+app.use(routes);
 
-app.use(articleRoutes);
-
-app.listen(port, function(){
-    console.log("Listening on PORT " + port);
+app.listen(PORT, function(){
+    console.log("Listening on PORT " + PORT);
 });

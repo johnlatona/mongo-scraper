@@ -1,0 +1,44 @@
+<div class="container"></div>
+    <div class="jumbotron" id="main-header">
+    <h1>Mongo Fox News Scraper</h1>
+    <p>Stay Informed! Pull the latest from Fox News</p>
+    <button class="btn btn-primary btn-lg" id="scrape-button">Scrape New Articles</button>
+    </div>
+    <div class="container">
+    <div id="article-list" class="row">
+        {{#each articles}}
+            <div class="article col-xs-12" data-article-id={{_id}}>
+                <a href={{link}} class="headline">{{title}}</a>
+
+                <p>{{blurb}}</p>
+                <button class="expand-note-button btn btn-primary btn-md" data-expand-id={{_id}}>Write a Note About This Article</button>
+            </div>
+            <div class="post-notes" id={{_id}}>
+                <div class="form-group">
+                    <form class=".form-inline">
+                        <label for="note-input" id="note-input-label">SAY SOMETHING</label>
+                        <input type="text" class="form-control" name="note-input" id="note-input-{{_id}}">
+                        <button class="post-note-button btn btn-primary btn-sm" id={{_id}}>POST</button>
+                    </form>
+                </div>
+            </div>
+            <div class="notes">
+                <h3 id="comments-title">Comments</h3>
+                <hr>
+                {{#each note}}
+                    <div>
+                        <p id="note-body">{{noteBody}}</p>
+                    </div>
+                {{/each}}
+            </div>
+            <div class="post-notes" id={{_id}}>
+                <form>
+                    <label for="note-input" id="note-input-label">SAY SOMETHING</label>
+                    <input type="text" name="note-input" id="note-input-{{_id}}">
+                    <button class="post-note-button" id={{_id}}>POST</button>
+                </form>
+            </div>
+        {{/each}} 
+    </div>
+    </div>
+</div>

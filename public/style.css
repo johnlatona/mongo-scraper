@@ -1,0 +1,91 @@
+body {
+    background-color: black;
+}
+
+.article, .notes, .post-notes {
+    background-color: lightgray;
+    padding: 15px;
+    border: 1px solid black;
+}
+
+.article {
+    border-top-right-radius: 10px;
+    border-top-left-radius: 10px;
+}
+
+.notes {
+    background-color: dimgrey;
+    padding: 25px;
+    margin-bottom: 15px;
+    border-radius: 10px;
+}
+
+.post-notes {
+    padding: 15px;
+}
+
+.note-input-label, .note-input {
+    margin-bottom: 5px;
+}
+
+#note-body {
+    font-size: 20px;
+    color: white;
+}
+
+#scrape-button, .expand-note-button, .post-note-button {
+    background-color: dimgrey;
+    border-color: dimgrey;
+}
+
+.post-note-button {
+    margin-top: 10px;
+}
+
+#scrape-button:hover {
+    background-color: gray;
+    border-color: gray;
+}
+
+.expand-note-button:hover {
+    background-color: gray;
+    border-color: gray;
+}
+
+.expand-note-button:active {
+    background-color: gray;
+    border-color: gray;
+}
+
+.headline {
+    font-size: 30px;
+}
+
+#article-list {
+    margin-top: 305px;
+}
+
+#main-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 4;
+    background: url("https://img00.deviantart.net/1d29/i/2009/114/4/1/fox_29_news_background_by_patrickjoseph.jpg");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    color: white;
+    text-shadow: 4px 3px 2px rgba(100, 100, 100, 1);
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+#comments-title {
+    color: white;
+    text-shadow: 4px 3px 2px rgba(100, 100, 100, 1);
+}
+
+.note-input {
+    width: 100%;
+}
